@@ -1,4 +1,5 @@
 using System;
+using System.Reflection.Metadata;
 using lista_de_comprasAPI.Dtos;
 
 namespace lista_de_comprasAPI.Endpoints;
@@ -11,22 +12,26 @@ public static class ProgramEndpoints
     new (3,"Macarrão",5,new DateOnly(2025,10,03))
  ];
 
-    public static void MapProgramEndpoint(this WebApplication app)
+    public static RouteGroupBuilder MapProgramEndpoint(this WebApplication app)
     {
+        var group = app.MapGroup("itens");
+
+        const string itensPath = "GetItens";
+
         //Get /itens
-        app.MapGet("itens/", () => itens);
+        group.MapGet("/", () => itens);
 
         //Get /itens/1
-
-        app.MapGet("itens/{id}", (int id) =>
+        // trying .NameWith
+        group.MapGet("{id}", (int id) =>
         {
             var item = itens.Find(item => item.Id == id);
-            return item;
-        });
+            return item is null ? Results.NotFound() : Results.Ok(item);
+        }).WithName(itensPath);
 
         //POST /item/1
 
-        app.MapPost("itens/", (CreateItemDto newItem) =>
+        group.MapPost("/", (CreateItemDto newItem) =>
         {
             ItemDto item = new(
                 itens.Count + 1,
@@ -36,12 +41,12 @@ public static class ProgramEndpoints
 
             itens.Add(item);
 
-            //return item.Id;
+            return Results.CreatedAtRoute(itensPath, new { id = item.Id }, item);
         });
 
         // DELETE delete itens/id
 
-        app.MapDelete("itens/{id}", (int id) =>
+        group.MapDelete("/{id}", (int id) =>
         {
             itens.RemoveAll(item => item.Id == id);
             return Results.NoContent();
@@ -49,7 +54,7 @@ public static class ProgramEndpoints
 
         // PUT
 
-        app.MapPut("itens/{id}", (int id, UpdateItemDto updateItem) =>
+        group.MapPut("/{id}", (int id, UpdateItemDto updateItem) =>
         {
             var index = itens.FindIndex(item => item.Id == id);
             if (index == -1) return Results.NotFound();
@@ -62,6 +67,7 @@ public static class ProgramEndpoints
             );
             return Results.NoContent();
         });
+        return group;
     }
 
 }
