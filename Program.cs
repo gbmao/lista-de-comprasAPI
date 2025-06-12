@@ -43,4 +43,20 @@ app.MapDelete("itens/{id}", (int id) =>
     return Results.NoContent();
 });
 
+// PUT
+
+app.MapPut("itens/{id}", (int id, UpdateItemDto updateItem) =>
+{
+    var index = itens.FindIndex(item => item.Id == id);
+    if (index == -1) return Results.NotFound();
+
+    itens[index] = new ItemDto(
+        id,
+        updateItem.Name,
+        updateItem.Quantities,
+        updateItem.ExpirationDate
+    );
+    return Results.NoContent();
+});
+
 app.Run();

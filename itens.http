@@ -18,3 +18,15 @@ Content-Type: application/json
 ###
 
 DELETE http://localhost:5296/itens/1
+
+
+###
+
+PUT   http://localhost:5296/itens/1
+Content-Type:  application/json
+
+{
+    "name": "Arroz",
+    "quantities": 4,
+    "expirationDate": "2030-01-30"
+}
