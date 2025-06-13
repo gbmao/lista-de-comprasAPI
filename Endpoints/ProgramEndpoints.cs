@@ -14,7 +14,7 @@ public static class ProgramEndpoints
 
     public static RouteGroupBuilder MapProgramEndpoint(this WebApplication app)
     {
-        var group = app.MapGroup("itens");
+        var group = app.MapGroup("itens").WithParameterValidation();
 
         const string itensPath = "GetItens";
 

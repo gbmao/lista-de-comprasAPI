@@ -7,4 +7,8 @@
     <RootNamespace>lista_de_comprasAPI</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="MinimalApis.Extensions" Version="0.11.0" />
+  </ItemGroup>
+
 </Project>

@@ -1,9 +1,10 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace lista_de_comprasAPI.Dtos;
 
 public record class UpdateItemDto(
 
-     string Name,
-       int Quantities,
+    [Required][MaxLength(30)] string Name,
+      [Required] int Quantities,
         DateOnly ExpirationDate);
