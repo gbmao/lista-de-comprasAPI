@@ -521,6 +521,11 @@ FodyWeavers.xsd
 *.msm
 *.msp
 
+# Ignore SQLite database files
+*.db
+
+
+
 # JetBrains Rider
 
 # End of https://www.toptal.com/developers/gitignore/api/csharp,aspnetcore
