@@ -1,7 +1,7 @@
 GET http://localhost:5296/itens
 ###
 
-GET http://localhost:5296/itens/4
+GET http://localhost:5296/itens/1
 
 
 ###
@@ -11,6 +11,7 @@ Content-Type: application/json
 
 {
     "name": "Leite",
+    "category": "Comida cotidiana",
     "Quantities": "10",
     "ExpirationDate": "2027-07-15"
 }
@@ -26,7 +27,8 @@ PUT   http://localhost:5296/itens/1
 Content-Type:  application/json
 
 {
-    "name": "Arroz",
+    "name": "Arroz!!!",
+    "category": "Comida cotidiana",
     "quantities": 4,
     "expirationDate": "2030-01-30"
 }

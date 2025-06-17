@@ -7,9 +7,9 @@ namespace lista_de_comprasAPI.Endpoints;
 public static class ProgramEndpoints
 {
     private static readonly List<ItemDto> itens = [
-    new (1,"Arroz",2,new DateOnly(2030,01,30)),
-    new (2,"Feijão",1,new DateOnly(2020,05,12)),
-    new (3,"Macarrão",5,new DateOnly(2025,10,03))
+    new (1,"Arroz","Comida cotidiana",2,new DateOnly(2030,01,30)),
+    new (2,"Feijão","Comida cotidiana",1,new DateOnly(2020,05,12)),
+    new (3,"Macarrão","Comida cotidiana",5,new DateOnly(2025,10,03))
  ];
 
     public static RouteGroupBuilder MapProgramEndpoint(this WebApplication app)
@@ -36,6 +36,7 @@ public static class ProgramEndpoints
             ItemDto item = new(
                 itens.Count + 1,
                 newItem.Name,
+                newItem.Category,
                 newItem.Quantities,
                 newItem.ExpirationDate);
 
@@ -62,6 +63,7 @@ public static class ProgramEndpoints
             itens[index] = new ItemDto(
                 id,
                 updateItem.Name,
+                updateItem.Category,
                 updateItem.Quantities,
                 updateItem.ExpirationDate
             );
