@@ -33,6 +33,12 @@ public static class ProgramEndpoints
 
         group.MapPost("/", (CreateItemDto newItem) =>
         {
+                        //Verificar se já existe item com mesmo nome
+            if (itens.Any(i => i.Name.Equals(newItem.Name, StringComparison.OrdinalIgnoreCase)))
+            {
+                return Results.BadRequest($"O item '{newItem.Name} já existe na lista");
+            }
+
             ItemDto item = new(
                 itens.Count + 1,
                 newItem.Name,
