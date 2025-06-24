@@ -12,4 +12,6 @@ var app = builder.Build();
 
 app.MapProgramEndpoint();
 
+app.MigrateDB();
+
 app.Run();

@@ -1,6 +1,8 @@
 using System;
 using System.Reflection.Metadata;
+using lista_de_comprasAPI.Data;
 using lista_de_comprasAPI.Dtos;
+using lista_de_comprasAPI.Entities;
 
 namespace lista_de_comprasAPI.Endpoints;
 
@@ -23,9 +25,11 @@ public static class ProgramEndpoints
 
         //Get /itens/1
         // trying .NameWith
-        group.MapGet("{id}", (int id) =>
+        group.MapGet("{id}", (int id, Lista_de_comprasContext dbContext) =>
         {
-            var item = itens.Find(item => item.Id == id);
+            //var item = itens.Find(item => item.Id == id);
+            Item? item = dbContext.Items.Find(id);
+
             return item is null ? Results.NotFound() : Results.Ok(item);
         }).WithName(itensPath);
 
