@@ -12,6 +12,6 @@ var app = builder.Build();
 
 app.MapProgramEndpoint();
 
-app.MigrateDB();
+await app.MigrateDBAsync();
 
 app.Run();
