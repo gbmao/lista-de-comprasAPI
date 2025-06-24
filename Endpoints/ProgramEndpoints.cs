@@ -19,25 +19,26 @@ public static class ProgramEndpoints
         
 
         //Get /itens
-        group.MapGet("/", (Lista_de_comprasContext dbContext) => 
-            dbContext.Items
+        group.MapGet("/", async (Lista_de_comprasContext dbContext) => 
+           await dbContext.Items
                      .Include(item => item.Category)
                      .Select(item => item.ToItemSummaryDto())
-                     .AsNoTracking());
+                     .AsNoTracking()
+                     .ToListAsync());
 
         //Get /itens/1
         // trying .NameWith
-        group.MapGet("{id}", (int id, Lista_de_comprasContext dbContext) =>
+        group.MapGet("{id}", async (int id, Lista_de_comprasContext dbContext) =>
         {
             //var item = itens.Find(item => item.Id == id);
-            Item? item = dbContext.Items.Find(id);
+            Item? item = await dbContext.Items.FindAsync(id);
 
             return item is null ? Results.NotFound() : Results.Ok(item.ToItemDetailsDto());
         }).WithName(itensPath);
 
         //POST /item/1
 
-        group.MapPost("/", (CreateItemDto newItem, Lista_de_comprasContext dbContext) =>
+        group.MapPost("/", async (CreateItemDto newItem, Lista_de_comprasContext dbContext) =>
         {
             //Verificar se já existe item com mesmo nome
             // if (dbContext.Items.Any(i => i.Name.Equals(newItem.Name, StringComparison.OrdinalIgnoreCase)))
@@ -49,7 +50,7 @@ public static class ProgramEndpoints
             Item item = newItem.ToEntity();
 
             dbContext.Items.Add(item);
-            dbContext.SaveChanges();
+           await dbContext.SaveChangesAsync();
 
             
 
@@ -58,19 +59,19 @@ public static class ProgramEndpoints
 
         // DELETE delete itens/id
 
-        group.MapDelete("/{id}", (int id, Lista_de_comprasContext dbContext) =>
+        group.MapDelete("/{id}", async (int id, Lista_de_comprasContext dbContext) =>
         {
-            dbContext.Items
+           await dbContext.Items
                      .Where(item => item.Id == id)
-                     .ExecuteDelete();
+                     .ExecuteDeleteAsync();
             return Results.NoContent();
         });
 
         // PUT
 
-        group.MapPut("/{id}", (int id, UpdateItemDto updateItem, Lista_de_comprasContext dbContext) =>
+        group.MapPut("/{id}", async (int id, UpdateItemDto updateItem, Lista_de_comprasContext dbContext) =>
         {
-            var existingItem = dbContext.Items.Find(id);
+            var existingItem = await dbContext.Items.FindAsync(id);
             if (existingItem is null)
             {
                 return Results.NotFound();
@@ -80,7 +81,7 @@ public static class ProgramEndpoints
                     .CurrentValues
                     .SetValues(updateItem.ToEntity(id));
 
-            dbContext.SaveChanges();
+           await dbContext.SaveChangesAsync();
             return Results.NoContent();            
         });
         return group;
