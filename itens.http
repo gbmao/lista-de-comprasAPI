@@ -10,8 +10,8 @@ POST  http://localhost:5296/itens/
 Content-Type: application/json
 
 {
-    "name": "Leite",
-    "category": "Comida cotidiana",
+    "Name": "Leite",
+    "CategoryId": 1,
     "Quantities": "10",
     "ExpirationDate": "2027-07-15"
 }

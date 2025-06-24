@@ -3,25 +3,27 @@ using System.Reflection.Metadata;
 using lista_de_comprasAPI.Data;
 using lista_de_comprasAPI.Dtos;
 using lista_de_comprasAPI.Entities;
+using lista_de_comprasAPI.Mapping;
+using Microsoft.EntityFrameworkCore;
 
 namespace lista_de_comprasAPI.Endpoints;
 
 public static class ProgramEndpoints
 {
-    private static readonly List<ItemDto> itens = [
-    new (1,"Arroz","Comida cotidiana",2,new DateOnly(2030,01,30)),
-    new (2,"Feijão","Comida cotidiana",1,new DateOnly(2020,05,12)),
-    new (3,"Macarrão","Comida cotidiana",5,new DateOnly(2025,10,03))
- ];
+    const string itensPath = "GetItens";
 
     public static RouteGroupBuilder MapProgramEndpoint(this WebApplication app)
     {
         var group = app.MapGroup("itens").WithParameterValidation();
 
-        const string itensPath = "GetItens";
+        
 
         //Get /itens
-        group.MapGet("/", () => itens);
+        group.MapGet("/", (Lista_de_comprasContext dbContext) => 
+            dbContext.Items
+                     .Include(item => item.Category)
+                     .Select(item => item.ToItemSummaryDto())
+                     .AsNoTracking());
 
         //Get /itens/1
         // trying .NameWith
@@ -30,54 +32,56 @@ public static class ProgramEndpoints
             //var item = itens.Find(item => item.Id == id);
             Item? item = dbContext.Items.Find(id);
 
-            return item is null ? Results.NotFound() : Results.Ok(item);
+            return item is null ? Results.NotFound() : Results.Ok(item.ToItemDetailsDto());
         }).WithName(itensPath);
 
         //POST /item/1
 
-        group.MapPost("/", (CreateItemDto newItem) =>
+        group.MapPost("/", (CreateItemDto newItem, Lista_de_comprasContext dbContext) =>
         {
-                        //Verificar se já existe item com mesmo nome
-            if (itens.Any(i => i.Name.Equals(newItem.Name, StringComparison.OrdinalIgnoreCase)))
+            //Verificar se já existe item com mesmo nome
+            // if (dbContext.Items.Any(i => i.Name.Equals(newItem.Name, StringComparison.OrdinalIgnoreCase)))
+            if (dbContext.Items.Any(i => i.Name.ToLower() == newItem.Name.ToLower()))
             {
                 return Results.BadRequest($"O item '{newItem.Name} já existe na lista");
             }
 
-            ItemDto item = new(
-                itens.Count + 1,
-                newItem.Name,
-                newItem.Category,
-                newItem.Quantities,
-                newItem.ExpirationDate);
+            Item item = newItem.ToEntity();
 
-            itens.Add(item);
+            dbContext.Items.Add(item);
+            dbContext.SaveChanges();
+
+            
 
             return Results.CreatedAtRoute(itensPath, new { id = item.Id }, item);
         });
 
         // DELETE delete itens/id
 
-        group.MapDelete("/{id}", (int id) =>
+        group.MapDelete("/{id}", (int id, Lista_de_comprasContext dbContext) =>
         {
-            itens.RemoveAll(item => item.Id == id);
+            dbContext.Items
+                     .Where(item => item.Id == id)
+                     .ExecuteDelete();
             return Results.NoContent();
         });
 
         // PUT
 
-        group.MapPut("/{id}", (int id, UpdateItemDto updateItem) =>
+        group.MapPut("/{id}", (int id, UpdateItemDto updateItem, Lista_de_comprasContext dbContext) =>
         {
-            var index = itens.FindIndex(item => item.Id == id);
-            if (index == -1) return Results.NotFound();
+            var existingItem = dbContext.Items.Find(id);
+            if (existingItem is null)
+            {
+                return Results.NotFound();
+            }
 
-            itens[index] = new ItemDto(
-                id,
-                updateItem.Name,
-                updateItem.Category,
-                updateItem.Quantities,
-                updateItem.ExpirationDate
-            );
-            return Results.NoContent();
+            dbContext.Entry(existingItem)
+                    .CurrentValues
+                    .SetValues(updateItem.ToEntity(id));
+
+            dbContext.SaveChanges();
+            return Results.NoContent();            
         });
         return group;
     }
