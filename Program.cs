@@ -11,6 +11,7 @@ builder.Services.AddSqlite<Lista_de_comprasContext>(connString);
 var app = builder.Build();
 
 app.MapProgramEndpoint();
+app.MapCategoryEndpoints();
 
 await app.MigrateDBAsync();
 
